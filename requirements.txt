@@ -4,3 +4,5 @@ langchain-deepseek>=1.1,<2
 langchain-mcp-adapters>=0.2,<1
 markitdown[pdf]>=0.1,<1
 python-dotenv>=1.0,<2
+# Only needed to regenerate task2/adversarial_cv.pdf; not used by hw2.py.
+reportlab>=4.0
