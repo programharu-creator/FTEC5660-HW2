@@ -1,63 +1,15 @@
-# Task 3: Reflection on the AI paradoxes
+# Task 3：关于 AI 悖论的反思
 
-*Format is free, so this is a short essay. Written by me, with AI assistance for
-editing only.*
+本次作业要求我先构建一个核验简历的智能体，随后再设法攻破这一类系统，完成之后我最强烈的感受是这两件事在技术路径上高度重合，驱动它们的都是同一个模型、同一套工具和同一份数据，区别只在于提示词里的那一段文字。我把一个晚上投入在让智能体分辨哪一位 Kelly Tsang 才是目标候选人上，又用半小时在一份 PDF 的白色文字层里写入记录已经核对完毕的说明，后一项工作的成本远低于前一项，这种投入上的悬殊大体上反映了当下这类系统的真实处境。
 
-This homework asked me to build a verifier and then to break it, and the most
-uncomfortable thing I learned is that those two jobs are the same job. Both are
-the same model, the same tools, the same data, separated only by a paragraph of
-prompt. I spent an evening making an agent that resolves *which* Kelly Tsang is
-real, and half an hour putting text in white ink in a PDF that tells an agent
-the question has already been answered. The defence was work; the attack was
-theatre. That asymmetry feels like the actual state of the field.
+第一个悖论在于同一个模型既被用来给出判断，又被用来生成等待判断的内容。Task 1 中我请模型判断简历是否诚实，Task 2 中我用同一个模型生成专门让该判断偏向诚实的文字，模型本身无法区分这两种用途，它既没有立场，也不会记得一小时之前自己处在哪一边。当一个系统既负责生产陈述又负责评估陈述时，把判断权交给它就等于交给一个在结果上没有任何利害关系的组件。
 
-**The paradox of the same model being judge and defendant.** In Task 1 I asked
-`deepseek-v4-flash` to decide whether a CV is honest. In Task 2 I used that same
-model to write text designed to make such a decision come out "honest". Nothing
-in the model distinguishes these roles. It has no stake in the outcome and no
-memory of having been on the other side an hour earlier. When a system both
-produces and evaluates claims, "trust the AI" means trusting a witness who is
-also the defence lawyer.
+第二个悖论在于证据来源的封闭性。KYC 这类流程之所以存在，是因为文件本身可能失真，然而核验智能体能够获得的唯一证据是另一份格式相同、出自同一套生成脚本的文件，我在阅读数据时注意到模拟的 LinkedIn 资料与简历使用了同一批姓名和同一套句式模板。现实世界的情形也没有好转，一个语言模型去核对一份由语言模型撰写的 LinkedIn 主页，随后把两者当作彼此独立的证据。
 
-**The paradox of verification without ground truth.** The whole KYC scenario
-exists because documents can lie. But the verification agent's only evidence is
-another document, in the same format, from the same generator. I could not help
-noticing that the mock LinkedIn profiles and the CVs are both produced by the
-course's own data generator, with the same names and the same sentence
-templates. In the real world the analogue is worse: an LLM checks a CV against a
-LinkedIn profile whose text was written by an LLM, and both are treated as
-independent witnesses.
+第三个悖论在于强大的阅读理解能力本身也扩大了可以被利用的空间。我在 Task 2 中真正起作用的改动幅度很小，只是把职位由 Manager 写成 Senior Manager，推动结果的关键是上下文，也就是那段声称记录已经逐行核对并签字放行的白色文字。模型能够流畅阅读、能够权衡语气与来源、能够表现得通情达理，这些能力本来是我们一贯称赞的部分，它们恰好让一段肉眼看不见的文字压过了本该用来对照的主页，模型越强，被文字说服的代价就越高。
 
-**The paradox of interpretability as an attack surface.** My successful move was
-not a clever lie. The lie was small and boring — "Senior Manager" instead of
-"Manager". What did the work was *context*: a white-on-white footer claiming
-that the record had already been reconciled and signed off. The agent's ability
-to read fluently, to weigh tone and provenance, to be reasonable — exactly the
-capabilities we prize — is what let an invisible paragraph outrank the profile
-it was supposed to be checked against. The better the model, the more expensive
-its gullibility.
+第四个悖论涉及覆盖率与耐心。我的核验智能体在公开测试集上取得了七份全对的结果，主要原因在于它每次都按同样的顺序检查每一个容易出错的字段，与它是否聪明关系不大。我自己搭建的最严格的核验器依靠一份固定清单就识别出了攻击，而清单恰好是脚本擅长处理、语言模型并不擅长的形式。方案中真正可靠的部分是确定性的那一半，包括用雇主与学校清单进行匹配，以及在 Python 中把逐字段的结论映射为固定分数，相反，让系统显得智能的那一部分反倒需要依靠分隔符与警告来防守。
 
-**The paradox of coverage and effort.** My verifier got 7/7 on the public set
-less because it is smart than because it looks at every discrepancy-prone field,
-every time, in the same order, without getting bored. The strictest verifier I
-built caught the attack every time by doing something an LLM is comparatively
-bad at and a script is comparatively good at: a fixed, exhaustive checklist.
-The reliable part of my solution was the deterministic half — fingerprint
-matching on companies and schools, the score being computed in Python rather
-than sampled from a distribution. The part that felt like intelligence was the
-part I had to defend with delimiters and warnings.
+第五个悖论在于信任的不对称，作业提供了可用的模型与共享服务器，然后要求我去攻击它，没有人指望一名学生击穿银行的 KYC 体系，但同样的练习正在工业界反复发生，防守方面临尽快上线的压力，攻击方只需写好一段话。我要面对的五个核验器其设计并不公开，我的策略因此自然转向推测它们的覆盖范围，这与真实攻击者面对未知目标的推理方式一致，也相当直接地反映了 AI 安全评估的实际形态。
 
-**The paradox of trust asymmetry.** The homework tells me to use an LLM, gives
-me a shared server, and then asks me to attack it. Nobody expects a student to
-beat a bank's KYC stack, but the same exercise is happening in industry: the
-defenders are under pressure to deploy, and the attackers need one good
-paragraph. The five verifiers I will be scored against are undisclosed, and I
-found myself reasoning about them the way an attacker reasons about an unknown
-target — probing for coverage gaps rather than proving a theorem. That is a very
-honest picture of how AI security actually gets evaluated.
-
-If I had to state one non-paradox conclusion: the trustworthy part of an
-AI system is the part that does not need to be trusted. Deterministic
-comparison, exhaustive field checks, provenance and signature checks, and
-refusing to treat a document as an instruction are cheap, boring, and effective.
-Everything else is a probability dressed as a promise.
+如果只保留一条结论，我会说值得信赖的 AI 系统应当尽量包含那些无需借助信任即可成立的机制，例如确定性的比对、穷尽的字段检查、来源与签名校验，以及拒绝把文档内容当成指令来处理，这些做法成本低、过程枯燥而且确实有效，其余环节本质上仍然只是概率估计。
